@@ -10,8 +10,16 @@ let customMinimap = {
             if (egneData.length > 0) {
                 egneData.forEach(lyr => {
                     this.olMap.removeLayer(lyr)
+                    document.getElementById('legende').style.visibility = 'hidden'
                 })
             }
+        }
+
+        const legendUpdate = (adresse, valgsted) => {
+            const adresseEl = document.getElementById('adresse')
+            const valgstedEl = document.getElementById('valgsted')
+            adresseEl.innerHTML = adresse
+            valgstedEl.innerHTML = valgsted
         }
 
         const createRouteLayer = (start, finish) => {
@@ -44,8 +52,9 @@ let customMinimap = {
                 })
                 this.olMap.addLayer(ruteLayer)
                 this.olMap.getView().fit(ruteLayer.getSource().getExtent(), {
-                    padding: [100,50,50,50]
+                    padding: [100,50,150,200]
                 })
+                document.getElementById('legende').style.visibility = 'visible'
             })
         }
 
@@ -54,10 +63,12 @@ let customMinimap = {
             const wkt = data['wkt']
             const dsName = 'afstemningsomraader'
             const ds = this.mmWidget.getSession().getDatasource(dsName)
-            const smqlQuery = `select adgangsadressebetegnelse from ${dsName} where Intersects("${wkt}", shape_wkt)`
+            const smqlQuery = `select adgangsadressebetegnelse, afstemningsstednavn from ${dsName} where Intersects("${wkt}", shape_wkt)`
 
             ds.executeSMQL(smqlQuery, async resp => {
+                console.log(resp)
                 const adressebetegnelse = resp[0].adgangsadressebetegnelse
+                const afstemningsstednavn = resp[0].afstemningsstednavn
                 const dawaData = await fetch(`https://api.dataforsyningen.dk/adgangsadresser?q=${adressebetegnelse}&struktur=mini&srid=25832`)
                 const dawaAdresse = await dawaData.json()
                 
@@ -99,6 +110,8 @@ let customMinimap = {
                     style: styleFunction
                 })
                 
+                legendUpdate(data.text.split(',')[0], `${afstemningsstednavn}<br> ${adressebetegnelse.split(',')[0]}`)
+                // legendUpdate(data.text.split(',')[0], adressebetegnelse.split(',')[0])
                 layerCheck()
                 createRouteLayer(wkt, format.writeGeometry(valgstedFeature.getGeometry()))
                 this.olMap.addLayer(adresseLayer)

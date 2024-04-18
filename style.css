@@ -13,6 +13,31 @@ body {
 }
 
 #minimapbody {
+    position: relative;
     height: 100%;
     width: 100%;
+}
+
+#legende {
+    visibility: hidden;
+    position: absolute;
+    bottom: 0;
+    /* width: 200px; */
+    max-width: 400px;
+    background-color: white;
+    z-index: 99;
+    margin: 0 0 25px 25px;
+    padding: 10px;
+    border-radius: 6px;
+    box-shadow: 0 0.5em 1em -0.125em #0a0a0a1a, 0 0 0 1px #0a0a0a05;
+}
+
+#legende > h2 {
+    margin-top: 10px;
+}
+
+.legendElement > p {
+    display: inline-block;
+    vertical-align: super;
+    margin: 5px 5px;
 }
