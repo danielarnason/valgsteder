@@ -6,14 +6,12 @@ let customMinimap = {
         this.olMap = mm.getMapControl().map
 
         const layerCheck = () => {
-            this.olMap.getLayers().getArray().forEach(lyr => {
-                const title = lyr.get('title')
-                console.log(title)
-                if (title === 'adresser' || title === 'ruter') {
+            const egneData = this.olMap.getLayers().getArray().filter(lyr => lyr.get('title'))
+            if (egneData.length > 0) {
+                egneData.forEach(lyr => {
                     this.olMap.removeLayer(lyr)
-                }
-
-            })
+                })
+            }
         }
 
         const createRouteLayer = (start, finish) => {
