@@ -32,7 +32,14 @@ let customMinimap = {
                     source: new ol.source.Vector({
                         features: [ruteFeature]
                     }),
-                    zIndex: 99
+                    zIndex: 99,
+                    style: new ol.style.Style({
+                        stroke: new ol.style.Stroke({
+                            color: 'black',
+                            width: 2,
+                            lineDash: [5, 5]
+                        })
+                    })
                 })
                 this.olMap.addLayer(ruteLayer)
             })
