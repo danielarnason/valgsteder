@@ -7,13 +7,16 @@ let customMinimap = {
 
         const layerCheck = () => {
             this.olMap.getLayers().getArray().forEach(lyr => {
-                if (lyr.get('title') == 'valgstedsadresse') {
+                const title = lyr.get('title')
+                console.log(title)
+                if (title === 'adresser' || title === 'ruter') {
                     this.olMap.removeLayer(lyr)
                 }
-            })   
+
+            })
         }
 
-        const calculateRoute = (start, finish) => {
+        const createRouteLayer = (start, finish) => {
             const pageRequest = this.mmWidget.getSession().createPageRequest('afstand-calculate-route')
             pageRequest.call({
                 frompoint: start,
@@ -42,11 +45,13 @@ let customMinimap = {
                     })
                 })
                 this.olMap.addLayer(ruteLayer)
+                this.olMap.getView().fit(ruteLayer.getSource().getExtent(), {
+                    padding: [100,50,50,50]
+                })
             })
         }
 
         this.mmWidget.addListener('SEARCH_RESULT_SELECTED', (eventname, data) => {
-            console.log(data)
             this.mmWidget.clearMarkingGeometry()
             const wkt = data['wkt']
             const dsName = 'afstemningsomraader'
@@ -54,21 +59,19 @@ let customMinimap = {
             const smqlQuery = `select adgangsadressebetegnelse from ${dsName} where Intersects("${wkt}", shape_wkt)`
 
             ds.executeSMQL(smqlQuery, async resp => {
-                layerCheck()
                 const adressebetegnelse = resp[0].adgangsadressebetegnelse
-                console.log(adressebetegnelse)
                 const dawaData = await fetch(`https://api.dataforsyningen.dk/adgangsadresser?q=${adressebetegnelse}&struktur=mini&srid=25832`)
                 const dawaAdresse = await dawaData.json()
-
+                
                 const format = new ol.format.WKT()
                 const adresseFeature = format.readFeature(wkt)
                 adresseFeature.set('type', 'adresse')
-
+                
                 const valgstedFeature = new ol.Feature({
                     geometry: new ol.geom.Point([dawaAdresse[0].x, dawaAdresse[0].y])
                 })
                 valgstedFeature.set('type', 'valgsted')
-            
+                
                 const styleFunction = (feature, resolution) => {
                     const featureType = feature.get('type')
                     const style = new ol.style.Style()
@@ -87,27 +90,25 @@ let customMinimap = {
                     }
                     return style
                 }
-
-                calculateRoute(wkt, format.writeGeometry(valgstedFeature.getGeometry()))
-
+                
+                
                 const adresseLayer = new ol.layer.Vector({
-                    title: 'valgstedsadresse',
+                    title: 'adresser',
                     source: new ol.source.Vector({
                         features: [valgstedFeature, adresseFeature]
                     }),
                     zIndex: 99,
                     style: styleFunction
                 })
-
+                
+                layerCheck()
+                createRouteLayer(wkt, format.writeGeometry(valgstedFeature.getGeometry()))
                 this.olMap.addLayer(adresseLayer)
-                this.olMap.getView().fit(adresseLayer.getSource().getExtent(), {
-                    padding: [100,50,50,50]
-                })
             })
         })
         this.mmWidget.addListener('SEARCH_RESULT_CLEARED', layerCheck)
-
-
+        
+        
     }
 }
 
