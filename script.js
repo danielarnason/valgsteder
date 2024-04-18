@@ -105,7 +105,8 @@ let customMinimap = {
             })
         })
         this.mmWidget.addListener('SEARCH_RESULT_CLEARED', layerCheck)
-        
+
+        document.querySelector("#minimapbody_innerContentStartExtentControl > button").addEventListener('click', layerCheck)
         
     }
 }
