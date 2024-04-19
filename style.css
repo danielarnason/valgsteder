@@ -33,11 +33,17 @@ body {
 }
 
 #legende > h2 {
-    margin-top: 10px;
+    margin: 10px 0;
+    font-size: x-large;
+    font-weight: bold;
 }
 
 .legendElement > p {
-    display: inline-block;
-    vertical-align: super;
+    display: inline-block !important;
+    vertical-align: super !important;
     margin: 5px 5px;
+}
+
+.legendElement > img {
+    vertical-align: text-bottom;
 }
