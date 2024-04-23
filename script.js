@@ -5,7 +5,7 @@ let customMinimap = {
         this.mmWidget = mm;
         this.olMap = mm.getMapControl().map
 
-        const layerCheck = () => {
+        const removeLayers = () => {
             const egneData = this.olMap.getLayers().getArray().filter(lyr => lyr.get('title'))
             if (egneData.length > 0) {
                 egneData.forEach(lyr => {
@@ -112,14 +112,14 @@ let customMinimap = {
                 
                 legendUpdate(data.text.split(',')[0], `${afstemningsstednavn}<br> ${adressebetegnelse.split(',')[0]}`)
                 // legendUpdate(data.text.split(',')[0], adressebetegnelse.split(',')[0])
-                layerCheck()
+                removeLayers()
                 createRouteLayer(wkt, format.writeGeometry(valgstedFeature.getGeometry()))
                 this.olMap.addLayer(adresseLayer)
             })
         })
-        this.mmWidget.addListener('SEARCH_RESULT_CLEARED', layerCheck)
+        this.mmWidget.addListener('SEARCH_RESULT_CLEARED', removeLayers)
 
-        document.querySelector("#minimapbody_innerContentStartExtentControl > button").addEventListener('click', layerCheck)
+        document.querySelector("#minimapbody_innerContentStartExtentControl > button").addEventListener('click', removeLayers)
         
     }
 }
